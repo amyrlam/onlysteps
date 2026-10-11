@@ -124,14 +124,20 @@ actor StepSync {
                 )
             }
             guard !rows.isEmpty else { return }
-            try await supabase
-                .from("daily_steps")
-                .upsert(rows, onConflict: "user_id,day")
-                .execute()
+            try await Self.upload(rows)
             logger.info("Synced \(rows.count) days of steps")
         } catch {
             logger.error("Step sync failed: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    /// Runs off the actor: the SDK's response type isn't Sendable, so it must
+    /// not cross back into actor isolation. Only Sendable rows go in.
+    private nonisolated static func upload(_ rows: [DailyStepsUpsert]) async throws {
+        _ = try await supabase
+            .from("daily_steps")
+            .upsert(rows, onConflict: "user_id,day")
+            .execute()
     }
 
     /// Sums steps per local day. `days` must be consecutive local midnights.
