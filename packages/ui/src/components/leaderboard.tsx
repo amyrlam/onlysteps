@@ -15,7 +15,7 @@ const formatter = new Intl.NumberFormat("en-US")
 const medalClass: Record<number, string> = {
   1: "bg-podium-gold text-primary-foreground",
   2: "bg-podium-silver text-primary-foreground",
-  3: "bg-podium-bronze text-white",
+  3: "bg-podium-bronze text-primary-foreground",
 }
 
 function initials(name: string) {

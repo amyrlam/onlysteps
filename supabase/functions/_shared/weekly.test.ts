@@ -65,3 +65,14 @@ test("winnerMessage handles ties and empty weeks", () => {
   });
   assert.match(empty.text, /No steps logged/);
 });
+
+test("winnerMessage escapes names so they can't ping the channel", () => {
+  const msg = winnerMessage({
+    appName: "OnlySteps",
+    groupName: "R&D <team>",
+    weekStart: "2026-10-05",
+    rows: [{ user_id: "a", display_name: "<!channel>", total_steps: 10, rank: 1 }],
+  });
+  assert.ok(!msg.text.includes("<!channel>"));
+  assert.match(msg.text, /\*&lt;!channel&gt;\* won \*R&amp;D &lt;team&gt;\*/);
+});

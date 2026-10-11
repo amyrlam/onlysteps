@@ -67,6 +67,9 @@ export function dueWeek(schedule: SlackSchedule, now: Date, tz: string): string 
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
+/** Escapes text for Slack mrkdwn so names can't add mentions or links. */
+export const slackEscape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 function formatRange(weekStartDate: string): string {
   const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", timeZone: "UTC" };
   const start = new Date(`${weekStartDate}T00:00:00Z`);
@@ -83,7 +86,9 @@ export function winnerMessage(opts: {
   groupUrl?: string;
   test?: boolean;
 }) {
-  const { appName, groupName, weekStart: ws, rows, groupUrl, test } = opts;
+  const { appName, weekStart: ws, rows, groupUrl, test } = opts;
+  const groupName = slackEscape(opts.groupName);
+  const name = (r: LeaderboardRow) => slackEscape(r.display_name);
   const range = formatRange(ws);
   const active = rows.filter((r) => r.total_steps > 0);
   const winners = active.filter((r) => r.rank === 1);
@@ -93,15 +98,15 @@ export function winnerMessage(opts: {
   if (winners.length === 0) {
     headline = `No steps logged in *${groupName}* for ${range}. New week, fresh start! 👟`;
   } else if (winners.length === 1) {
-    headline = `🏆 *${winners[0].display_name}* won *${groupName}* for ${range} with *${fmt(winners[0].total_steps)}* steps!`;
+    headline = `🏆 *${name(winners[0])}* won *${groupName}* for ${range} with *${fmt(winners[0].total_steps)}* steps!`;
   } else {
-    const names = winners.map((w) => `*${w.display_name}*`).join(" and ");
+    const names = winners.map((w) => `*${name(w)}*`).join(" and ");
     headline = `🏆 It's a tie in *${groupName}* for ${range}: ${names} with *${fmt(winners[0].total_steps)}* steps each!`;
   }
 
   const podium = active
     .filter((r) => r.rank <= 3)
-    .map((r) => `${medals[r.rank - 1]} ${r.display_name} · ${fmt(r.total_steps)}`)
+    .map((r) => `${medals[r.rank - 1]} ${name(r)} · ${fmt(r.total_steps)}`)
     .join("\n");
 
   const prefix = test ? "_Test post from " + appName + "._\n" : "";

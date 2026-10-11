@@ -3,6 +3,18 @@
 
 create extension if not exists pgcrypto;
 
+-- IANA time zone names known to Postgres, e.g. 'America/New_York'. Marked
+-- immutable so it can back a check constraint; the zone list only changes
+-- with a Postgres tzdata update.
+create function public.is_valid_time_zone(tz text)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select exists (select 1 from pg_catalog.pg_timezone_names where name = tz);
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Profiles (one per auth user)
 -- ---------------------------------------------------------------------------
@@ -10,7 +22,7 @@ create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text not null default 'Walker' check (char_length(display_name) between 1 and 40),
   avatar_url text,
-  time_zone text not null default 'UTC',
+  time_zone text not null default 'UTC' check (public.is_valid_time_zone(time_zone)),
   created_at timestamptz not null default now()
 );
 
@@ -48,7 +60,7 @@ create table public.groups (
   -- Short code used in invite links: /join/<invite_code>
   invite_code text not null unique default lower(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10)),
   -- Weeks run Monday to Sunday in this time zone.
-  time_zone text not null default 'America/New_York',
+  time_zone text not null default 'America/New_York' check (public.is_valid_time_zone(time_zone)),
   created_by uuid not null default auth.uid() references auth.users (id) on delete cascade,
   created_at timestamptz not null default now()
 );

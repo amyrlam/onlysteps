@@ -28,6 +28,7 @@ actor StepSync {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OnlySteps", category: "StepSync")
     private var observerQuery: HKObserverQuery?
     private var runningSync: Task<Void, Never>?
+    private var syncRequestedAgain = false
 
     var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
@@ -54,13 +55,21 @@ actor StepSync {
         }
     }
 
-    /// Uploads the last `syncWindowDays` days. Concurrent calls share one run.
+    /// Uploads the last `syncWindowDays` days. Concurrent calls share one run;
+    /// a call that arrives mid-run makes the run go once more, since the
+    /// in-flight HealthKit query may have missed the newest samples.
     func syncRecentDays() async {
         if let runningSync {
+            syncRequestedAgain = true
             await runningSync.value
             return
         }
-        let task = Task { await performSync() }
+        let task = Task {
+            repeat {
+                syncRequestedAgain = false
+                await performSync()
+            } while syncRequestedAgain
+        }
         runningSync = task
         await task.value
         runningSync = nil

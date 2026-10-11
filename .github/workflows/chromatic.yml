@@ -12,33 +12,37 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: Publish Storybook
     runs-on: ubuntu-latest
     env:
-      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+      # A boolean, not the token: install and build steps never see the secret.
+      CHROMATIC_ENABLED: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
     steps:
       - name: Skip when Chromatic isn't configured
-        if: env.CHROMATIC_PROJECT_TOKEN == ''
+        if: env.CHROMATIC_ENABLED != 'true'
         run: echo "::notice::Add the CHROMATIC_PROJECT_TOKEN repository secret to publish Storybook to Chromatic."
       - uses: actions/checkout@v4
-        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        if: env.CHROMATIC_ENABLED == 'true'
         with:
           fetch-depth: 0 # Chromatic uses git history to pick baselines
       - uses: pnpm/action-setup@v4
-        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        if: env.CHROMATIC_ENABLED == 'true'
       - uses: actions/setup-node@v4
-        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        if: env.CHROMATIC_ENABLED == 'true'
         with:
           node-version: 22
           cache: pnpm
-      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+      - if: env.CHROMATIC_ENABLED == 'true'
         run: pnpm install --frozen-lockfile && pnpm --filter @onlysteps/tokens build && pnpm --filter @onlysteps/ui build
       - uses: chromaui/action@v18
-        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        if: env.CHROMATIC_ENABLED == 'true'
         with:
-          projectToken: ${{ env.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: packages/ui
           # Built in the step above; Chromatic uploads this folder as is.
           storybookBuildDir: storybook-static

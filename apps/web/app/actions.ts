@@ -6,6 +6,15 @@ import { winnerMessage, weekStart, type LeaderboardRow } from "@onlysteps/functi
 import { APP_NAME, SITE_URL } from "@/lib/brand"
 import { createClient } from "@/lib/supabase/server"
 
+function isValidTimeZone(timeZone: string) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export type ActionState = { error?: string; ok?: string } | undefined
 
 export async function createGroup(_: ActionState, form: FormData): Promise<ActionState> {
@@ -13,6 +22,7 @@ export async function createGroup(_: ActionState, form: FormData): Promise<Actio
   const name = String(form.get("name") ?? "").trim()
   const timeZone = String(form.get("timeZone") ?? "UTC")
   if (!name) return { error: "Give your group a name." }
+  if (!isValidTimeZone(timeZone)) return { error: "Unknown time zone." }
   const { data, error } = await supabase.from("groups").insert({ name, time_zone: timeZone }).select("id").single()
   if (error) return { error: error.message }
   redirect(`/groups/${data.id}`)
