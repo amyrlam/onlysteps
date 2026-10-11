@@ -18,9 +18,13 @@ export function SlackSettingsForm({ groupId, settings }: { groupId: string; sett
   const [testState, setTestState] = useState<ActionState>()
   const [testing, startTest] = useTransition()
   const message = testState ?? state
+  // React resets uncontrolled fields after a form action; remount on save so defaults come from the new settings.
+  const formKey = settings
+    ? `${settings.webhook_url}|${settings.enabled}|${settings.post_weekday}|${settings.post_hour}`
+    : "new"
 
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form key={formKey} action={action} className="flex flex-col gap-5">
       <input type="hidden" name="groupId" value={groupId} />
       <Field>
         <FieldLabel htmlFor="webhookUrl">Incoming webhook URL</FieldLabel>
