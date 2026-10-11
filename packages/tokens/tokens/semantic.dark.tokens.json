@@ -1,0 +1,93 @@
+{
+  "$description": "Semantic color tokens. Names match shadcn/ui CSS variables.",
+  "semantic": {
+    "$type": "color",
+    "background": {
+      "$value": "{color.neutral.950}"
+    },
+    "foreground": {
+      "$value": "{color.neutral.50}"
+    },
+    "card": {
+      "$value": "{color.neutral.900}"
+    },
+    "card-foreground": {
+      "$value": "{color.neutral.50}"
+    },
+    "popover": {
+      "$value": "{color.neutral.900}"
+    },
+    "popover-foreground": {
+      "$value": "{color.neutral.50}"
+    },
+    "primary": {
+      "$value": "{color.green.400}"
+    },
+    "primary-foreground": {
+      "$value": "{color.neutral.950}"
+    },
+    "secondary": {
+      "$value": "{color.neutral.800}"
+    },
+    "secondary-foreground": {
+      "$value": "{color.neutral.50}"
+    },
+    "muted": {
+      "$value": "{color.neutral.800}"
+    },
+    "muted-foreground": {
+      "$value": "{color.neutral.400}"
+    },
+    "accent": {
+      "$value": "{color.green.950}"
+    },
+    "accent-foreground": {
+      "$value": "{color.green.200}"
+    },
+    "destructive": {
+      "$value": "{color.red.500}"
+    },
+    "destructive-foreground": {
+      "$value": "{color.white}"
+    },
+    "success": {
+      "$value": "{color.green.400}"
+    },
+    "warning": {
+      "$value": "{color.amber.300}"
+    },
+    "border": {
+      "$value": "{color.neutral.800}"
+    },
+    "input": {
+      "$value": "{color.neutral.700}"
+    },
+    "ring": {
+      "$value": "{color.green.400}"
+    },
+    "podium-gold": {
+      "$value": "{color.amber.300}"
+    },
+    "podium-silver": {
+      "$value": "{color.neutral.300}"
+    },
+    "podium-bronze": {
+      "$value": "{color.amber.500}"
+    },
+    "chart-1": {
+      "$value": "{color.green.400}"
+    },
+    "chart-2": {
+      "$value": "{color.sky.300}"
+    },
+    "chart-3": {
+      "$value": "{color.violet.300}"
+    },
+    "chart-4": {
+      "$value": "{color.amber.300}"
+    },
+    "chart-5": {
+      "$value": "{color.red.300}"
+    }
+  }
+}

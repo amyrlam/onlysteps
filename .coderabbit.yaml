@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit review settings: https://docs.coderabbit.ai/reference/configuration
+language: en-US
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: true
+  path_filters:
+    - "!pnpm-lock.yaml"
+    - "!packages/tokens/dist/**"
+    - "!apps/ios/OnlySteps/DesignSystem/Tokens.swift"
+  path_instructions:
+    - path: "apps/ios/**/*.swift"
+      instructions: |
+        SwiftUI app targeting iOS 18 in Swift 6 language mode. Flag data races and
+        Sendable problems, HealthKit misuse (authorization, background delivery
+        completion handlers), and anything that could upload wrong step totals.
+        The owner is new to iOS, so briefly explain the why behind suggestions.
+    - path: "supabase/migrations/**"
+      instructions: |
+        Postgres for Supabase. Check row level security on every table, that
+        security definer functions set search_path, and that users can never
+        read Slack webhook URLs or write another user's steps.
+    - path: "supabase/functions/**"
+      instructions: |
+        _shared/ must stay free of Deno and Node APIs; the web app imports it too.
+    - path: "packages/ui/src/components/**"
+      instructions: |
+        Components come from shadcn/ui on Base UI. Prefer staying close to upstream;
+        colors must come from token-backed Tailwind classes, not raw values.
+    - path: "packages/tokens/tokens/**"
+      instructions: |
+        Files follow the Design Tokens Community Group format (2025.10): $value,
+        $type, color objects with colorSpace/components/hex, dimension {value, unit}.

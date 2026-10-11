@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Values come from Config/Base.xcconfig (and Secrets.xcconfig). Read them via AppConfig. -->
+	<key>SupabaseURL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>SupabaseAnonKey</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>WebBaseURL</key>
+	<string>$(WEB_BASE_URL)</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>$(APP_DISPLAY_NAME) reads your daily step count so it can show your progress and share daily totals with the groups you join.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>onlysteps</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

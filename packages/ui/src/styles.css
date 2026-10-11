@@ -1,0 +1,66 @@
+/*
+ * OnlySteps theme for Tailwind CSS v4. Import after "tailwindcss":
+ *   @import "tailwindcss";
+ *   @import "@onlysteps/ui/styles.css";
+ *   @source "<path to>/packages/ui/src";
+ * Values come from @onlysteps/tokens (DTCG). Edit tokens there, not here.
+ */
+@import "tw-animate-css";
+@import "@onlysteps/tokens/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--os-font-sans);
+  --font-mono: var(--os-font-mono);
+  --font-display: var(--os-font-display);
+  --font-heading: var(--os-font-display);
+
+  --radius-sm: var(--os-radius-sm);
+  --radius-md: var(--os-radius-md);
+  --radius-lg: var(--os-radius-lg);
+  --radius-xl: var(--os-radius-xl);
+  --radius-2xl: calc(var(--os-radius-xl) * 1.4);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-podium-gold: var(--podium-gold);
+  --color-podium-silver: var(--podium-silver);
+  --color-podium-bronze: var(--podium-bronze);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+}

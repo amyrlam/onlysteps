@@ -1,0 +1,25 @@
+// Shared build settings for OnlySteps. Safe to commit: no secrets here.
+// Put your own values in Secrets.xcconfig (copy Secrets.example.xcconfig).
+//
+// Note: "//" starts a comment in .xcconfig files, so URLs are written as
+// https:/$()/example.com -- the empty $() stops the second slash from
+// being read as a comment.
+
+// The name shown under the app icon and throughout the UI.
+APP_DISPLAY_NAME = OnlySteps
+
+// Bundle id becomes $(BUNDLE_ID_PREFIX).ios. Forks should change this.
+BUNDLE_ID_PREFIX = app.onlysteps
+
+// Your Apple developer team id (set it in Secrets.xcconfig).
+DEVELOPMENT_TEAM =
+
+// Website that hosts invite links (https://<host>/join/<code>).
+WEB_HOST = onlysteps.app
+WEB_BASE_URL = https:/$()/$(WEB_HOST)
+
+// Supabase project (Dashboard > Project Settings > API).
+SUPABASE_URL = https:/$()/your-project-ref.supabase.co
+SUPABASE_ANON_KEY = your-anon-key
+
+#include? "Secrets.xcconfig"
