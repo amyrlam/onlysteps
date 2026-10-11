@@ -19,8 +19,7 @@ final class LeaderboardModel {
         do {
             entries = try await supabase
                 .rpc("group_leaderboard", params: ["gid": groupID.uuidString])
-                .execute()
-                .value
+                .fetchValue()
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription

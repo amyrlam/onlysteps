@@ -18,8 +18,7 @@ final class GroupsModel {
                 .from("groups")
                 .select(StepGroup.columns)
                 .order("created_at", ascending: false)
-                .execute()
-                .value
+                .fetchValue()
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
@@ -33,8 +32,7 @@ final class GroupsModel {
             .insert(NewGroup(name: name, timeZone: TimeZone.current.identifier))
             .select(StepGroup.columns)
             .single()
-            .execute()
-            .value
+            .fetchValue()
         groups.insert(group, at: 0)
         return group
     }
@@ -43,8 +41,7 @@ final class GroupsModel {
     func join(code: String) async throws -> StepGroup? {
         let groupID: UUID = try await supabase
             .rpc("join_group", params: ["code": code])
-            .execute()
-            .value
+            .fetchValue()
         await load()
         return groups.first { $0.id == groupID }
     }
@@ -53,8 +50,7 @@ final class GroupsModel {
     func preview(code: String) async throws -> InvitePreview? {
         let rows: [InvitePreview] = try await supabase
             .rpc("group_for_invite", params: ["code": code])
-            .execute()
-            .value
+            .fetchValue()
         return rows.first
     }
 }

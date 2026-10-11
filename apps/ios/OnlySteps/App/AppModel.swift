@@ -107,8 +107,7 @@ final class AppModel {
                 .select(Self.profileColumns)
                 .eq("id", value: userID.uuidString)
                 .single()
-                .execute()
-                .value
+                .fetchValue()
             profile = loaded
         } catch {
             print("Loading profile failed: \(error)")
@@ -123,8 +122,7 @@ final class AppModel {
                 .eq("id", value: userID.uuidString)
                 .select(Self.profileColumns)
                 .single()
-                .execute()
-                .value
+                .fetchValue()
             profile = updated
         } catch {
             print("Updating profile failed: \(error)")
