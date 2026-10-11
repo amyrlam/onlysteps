@@ -55,6 +55,12 @@ Each group owner can paste a Slack incoming webhook URL on the group page and pi
 
 To enable it on a hosted Supabase project, see the comments in `supabase/migrations/*_schedule_weekly_winner.sql`.
 
+## Deploying
+
+- **Database and functions:** the Deploy Supabase workflow runs `supabase db push` and deploys Edge Functions on pushes to `main`. It needs the repository secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID` and `SUPABASE_DB_PASSWORD`, plus `CRON_SECRET` for the weekly Slack post.
+- **Web:** Vercel, with Root Directory `apps/web` and the `NEXT_PUBLIC_SUPABASE_*` variables from `apps/web/.env.example`. Every PR gets a preview URL. In Supabase Auth > URL Configuration, add `https://*-<your-vercel-team>.vercel.app/**` as a redirect URL so sign-in works on previews.
+- **Storybook:** Chromatic (see above).
+
 ## License
 
 [GPL-3.0](LICENSE). Components in `packages/ui/src/components` start from [shadcn/ui](https://github.com/shadcn-ui/ui) (MIT).
