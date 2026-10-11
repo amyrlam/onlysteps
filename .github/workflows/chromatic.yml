@@ -1,0 +1,47 @@
+name: Chromatic
+
+# Publishes the design system Storybook to Chromatic so every PR gets a
+# shareable link. Visual change detection is not enforced yet
+# (exitZeroOnChanges), so this never blocks a PR.
+on:
+  pull_request:
+    paths:
+      - "packages/ui/**"
+      - "packages/tokens/**"
+      - ".github/workflows/chromatic.yml"
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    name: Publish Storybook
+    runs-on: ubuntu-latest
+    env:
+      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+    steps:
+      - name: Skip when Chromatic isn't configured
+        if: env.CHROMATIC_PROJECT_TOKEN == ''
+        run: echo "::notice::Add the CHROMATIC_PROJECT_TOKEN repository secret to publish Storybook to Chromatic."
+      - uses: actions/checkout@v4
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        with:
+          fetch-depth: 0 # Chromatic uses git history to pick baselines
+      - uses: pnpm/action-setup@v4
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+      - uses: actions/setup-node@v4
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        with:
+          node-version: 22
+          cache: pnpm
+      - if: env.CHROMATIC_PROJECT_TOKEN != ''
+        run: pnpm install --frozen-lockfile && pnpm --filter @onlysteps/tokens build
+      - uses: chromaui/action@v18
+        if: env.CHROMATIC_PROJECT_TOKEN != ''
+        with:
+          projectToken: ${{ env.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: packages/ui
+          buildScriptName: build
+          storybookBuildDir: storybook-static
+          exitZeroOnChanges: true
+          autoAcceptChanges: main
+          onlyChanged: false

@@ -43,6 +43,10 @@ Local sign-in emails land in the Supabase mail viewer that `supabase start` prin
 
 Edit the JSON in `packages/tokens/tokens/`, then run `pnpm tokens`. Semantic color names match shadcn's CSS variables (`--primary`, `--muted-foreground`, …), so shadcn components pick them up unchanged. Commit the regenerated `apps/ios/OnlySteps/DesignSystem/Tokens.swift`; CI fails if it is stale.
 
+## Storybook and Chromatic
+
+`pnpm storybook` runs the design system locally. On pull requests that touch `packages/ui` or `packages/tokens`, CI publishes the Storybook to [Chromatic](https://www.chromatic.com) for a shareable link once the `CHROMATIC_PROJECT_TOKEN` repository secret is set. Visual regression checks aren't enforced yet.
+
 ## Slack weekly winner
 
 Each group owner can paste a Slack incoming webhook URL on the group page and pick the day and hour (default Monday 9am in the group's time zone). An hourly cron job calls the `weekly-winner` function, which posts last week's leaderboard for every group whose time has come and remembers the week it announced. There's also a "Send test post" button.
