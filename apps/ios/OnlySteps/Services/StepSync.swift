@@ -69,10 +69,11 @@ actor StepSync {
                 syncRequestedAgain = false
                 await performSync()
             } while syncRequestedAgain
+            // Cleared inside the task so no caller can join a finished run.
+            runningSync = nil
         }
         runningSync = task
         await task.value
-        runningSync = nil
     }
 
     /// Today's steps and this week's total (Monday to today), read locally.
