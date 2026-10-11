@@ -1,5 +1,7 @@
 # OnlySteps
 
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/amyrlam/onlysteps?utm_source=oss&utm_medium=github&utm_campaign=amyrlam%2Fonlysteps&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
+
 Step competitions with your friends: an open-source, ad-free alternative to StepUp. Your iPhone counts the steps, groups compete on a weekly leaderboard, and the winner gets posted to Slack every Monday morning.
 
 > The name isn't final. It lives in one setting per app (`NEXT_PUBLIC_APP_NAME`, `APP_DISPLAY_NAME`, `APP_NAME`) so renaming is cheap.
