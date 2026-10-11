@@ -6,7 +6,8 @@
   "type": "module",
   "description": "Supabase Edge Functions. _shared/ holds runtime-neutral code also used by the web app.",
   "exports": {
-    "./weekly": "./_shared/weekly.ts"
+    "./weekly": "./_shared/weekly.ts",
+    "./rejoin": "./_shared/rejoin.ts"
   },
   "scripts": {
     "test": "node --test _shared/*.test.ts"

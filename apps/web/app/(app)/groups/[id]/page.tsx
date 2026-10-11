@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@onlysteps/ui/components/tabs"
 import { SITE_URL } from "@/lib/brand"
 import { getUser } from "@/lib/supabase/server"
 import { InviteLink } from "./invite-link"
+import { RemovedMembers } from "./removed-members"
 import { SlackSettingsForm } from "./slack-settings-form"
 
 export const metadata: Metadata = { title: "Leaderboard" }
@@ -34,6 +35,8 @@ export default async function GroupPage({
     supabase.from("group_slack_settings").select("webhook_url, enabled, post_weekday, post_hour").eq("group_id", id).maybeSingle(),
   ])
   const isOwner = me?.role === "owner"
+  const { data: removed } = isOwner ? await supabase.rpc("group_removed_members", { gid: id }) : { data: null }
+  const requestCount = (removed ?? []).filter((r) => r.requested_at && !r.dismissed_at).length
   const entries = (rows ?? []).map((r) => ({
     userId: r.user_id,
     name: r.display_name,
@@ -50,6 +53,11 @@ export default async function GroupPage({
           ← Groups
         </Link>
         <h1 className="text-3xl font-semibold">{group.name}</h1>
+        {requestCount > 0 ? (
+          <a href="#removed" className="text-sm font-medium hover:underline">
+            {requestCount === 1 ? "1 request to rejoin" : `${requestCount} requests to rejoin`} →
+          </a>
+        ) : null}
       </div>
 
       <Card>
@@ -86,6 +94,21 @@ export default async function GroupPage({
           <InviteLink url={`${SITE_URL}/join/${group.invite_code}`} />
         </CardContent>
       </Card>
+
+      {removed?.length ? (
+        <Card id="removed">
+          <CardHeader>
+            <CardTitle>Removed members</CardTitle>
+            <CardDescription>
+              Removed people can’t rejoin with the invite link. They can ask to come back; approving adds them to the
+              group again.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RemovedMembers groupId={id} members={removed} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {isOwner ? (
         <Card>

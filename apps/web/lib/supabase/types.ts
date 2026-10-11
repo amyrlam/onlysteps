@@ -27,6 +27,35 @@ export type Database = {
           { foreignKeyName: "group_members_group_id_fkey"; columns: ["group_id"]; isOneToOne: false; referencedRelation: "groups"; referencedColumns: ["id"] },
         ]
       }
+      group_removals: {
+        Row: {
+          group_id: string
+          user_id: string
+          removed_at: string
+          requested_at: string | null
+          dismissed_at: string | null
+          notified_at: string | null
+        }
+        Insert: {
+          group_id: string
+          user_id: string
+          removed_at?: string
+          requested_at?: string | null
+          dismissed_at?: string | null
+          notified_at?: string | null
+        }
+        Update: {
+          group_id?: string
+          user_id?: string
+          removed_at?: string
+          requested_at?: string | null
+          dismissed_at?: string | null
+          notified_at?: string | null
+        }
+        Relationships: [
+          { foreignKeyName: "group_removals_group_id_fkey"; columns: ["group_id"]; isOneToOne: false; referencedRelation: "groups"; referencedColumns: ["id"] },
+        ]
+      }
       daily_steps: {
         Row: { user_id: string; day: string; steps: number; source: string; updated_at: string }
         Insert: { user_id?: string; day: string; steps: number; source?: string; updated_at?: string }
@@ -69,6 +98,20 @@ export type Database = {
     Views: { [_ in never]: never }
     Functions: {
       join_group: { Args: { code: string }; Returns: string }
+      request_rejoin: { Args: { code: string }; Returns: string }
+      group_removed_members: {
+        Args: { gid: string }
+        Returns: {
+          user_id: string
+          display_name: string
+          avatar_url: string | null
+          removed_at: string
+          requested_at: string | null
+          dismissed_at: string | null
+        }[]
+      }
+      approve_rejoin: { Args: { gid: string; uid: string }; Returns: undefined }
+      dismiss_rejoin: { Args: { gid: string; uid: string }; Returns: undefined }
       group_for_invite: { Args: { code: string }; Returns: { id: string; name: string; member_count: number }[] }
       group_leaderboard: {
         Args: { gid: string; week?: string }

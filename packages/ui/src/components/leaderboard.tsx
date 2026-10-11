@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
-import { cn } from "../lib/utils"
+import { cn, initials } from "../lib/utils"
 
 export type LeaderboardEntry = {
   userId: string
@@ -16,15 +16,6 @@ const medalClass: Record<number, string> = {
   1: "bg-podium-gold text-primary-foreground",
   2: "bg-podium-silver text-primary-foreground",
   3: "bg-podium-bronze text-primary-foreground",
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]!.toUpperCase())
-    .join("")
 }
 
 function Leaderboard({

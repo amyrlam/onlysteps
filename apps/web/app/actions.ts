@@ -52,8 +52,42 @@ export async function createGroup(_: ActionState, form: FormData): Promise<Actio
 export async function joinGroup(code: string) {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc("join_group", { code })
-  if (error) redirect(`/join/${code}?error=${error.message.includes("removed from this group") ? "removed" : "1"}`)
+  // Removed members land back on the invite page, which offers a request to rejoin.
+  if (error) redirect(error.message.includes("removed from this group") ? `/join/${code}` : `/join/${code}?error=1`)
   redirect(`/groups/${data}`)
+}
+
+/** Asks the owner to let a removed member back in, then pings the group's Slack. */
+export async function requestRejoin(code: string) {
+  const supabase = await createClient()
+  const { data: groupId, error } = await supabase.rpc("request_rejoin", { code })
+  if (error) redirect(`/join/${code}?error=1`)
+  // Best effort: the request is saved and shows on the group page either way.
+  await supabase.functions.invoke("notify-rejoin-request", { body: { group_id: groupId } }).catch(() => {})
+  redirect(`/join/${code}`)
+}
+
+async function ownerAction(groupId: string, run: () => PromiseLike<{ error: { message: string } | null }>) {
+  const { error } = await run()
+  if (error) return { error: error.message }
+  revalidatePath(`/groups/${groupId}`)
+  return undefined
+}
+
+export async function approveRejoin(groupId: string, userId: string): Promise<ActionState> {
+  const supabase = await createClient()
+  return ownerAction(groupId, () => supabase.rpc("approve_rejoin", { gid: groupId, uid: userId }))
+}
+
+export async function dismissRejoin(groupId: string, userId: string): Promise<ActionState> {
+  const supabase = await createClient()
+  return ownerAction(groupId, () => supabase.rpc("dismiss_rejoin", { gid: groupId, uid: userId }))
+}
+
+/** Lifts a removal so the person can join again with the invite link. */
+export async function liftRemoval(groupId: string, userId: string): Promise<ActionState> {
+  const supabase = await createClient()
+  return ownerAction(groupId, () => supabase.from("group_removals").delete().eq("group_id", groupId).eq("user_id", userId))
 }
 
 export async function saveSlackSettings(_: ActionState, form: FormData): Promise<ActionState> {

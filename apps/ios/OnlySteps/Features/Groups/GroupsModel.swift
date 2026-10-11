@@ -46,6 +46,31 @@ final class GroupsModel {
         return groups.first { $0.id == groupID }
     }
 
+    /// The signed-in user's removal from a group, if an owner removed them.
+    func removal(groupID: UUID) async throws -> GroupRemoval? {
+        let userID = try await supabase.auth.session.user.id
+        // Owners can see everyone's removals, so filter to our own row.
+        let rows: [GroupRemoval] = try await supabase
+            .from("group_removals")
+            .select(GroupRemoval.columns)
+            .eq("group_id", value: groupID)
+            .eq("user_id", value: userID)
+            .fetchValue()
+        return rows.first
+    }
+
+    /// Asks the owner to let a removed member back in.
+    func requestRejoin(code: String) async throws {
+        let groupID: UUID = try await supabase
+            .rpc("request_rejoin", params: ["code": code])
+            .fetchValue()
+        // Best effort: pings the group's Slack. The request is saved either way.
+        try? await supabase.functions.invoke(
+            "notify-rejoin-request",
+            options: FunctionInvokeOptions(body: ["group_id": groupID.uuidString])
+        )
+    }
+
     /// Group name and size for an invite code, before joining.
     func preview(code: String) async throws -> InvitePreview? {
         let rows: [InvitePreview] = try await supabase
