@@ -31,7 +31,11 @@ export default async function JoinPage({
                 {group.member_count} {Number(group.member_count) === 1 ? "member" : "members"} on {APP_NAME}
               </p>
             </div>
-            {error ? <p className="text-destructive text-sm">Couldn’t join. Try again.</p> : null}
+            {error ? (
+              <p className="text-destructive text-sm">
+                {error === "removed" ? "You were removed from this group. Ask the owner to add you back." : "Couldn’t join. Try again."}
+              </p>
+            ) : null}
             {user ? (
               <form action={joinGroup.bind(null, code)}>
                 <Button size="lg" className="w-full" type="submit">
