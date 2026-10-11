@@ -34,13 +34,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - if: env.CHROMATIC_PROJECT_TOKEN != ''
-        run: pnpm install --frozen-lockfile && pnpm --filter @onlysteps/tokens build
+        run: pnpm install --frozen-lockfile && pnpm --filter @onlysteps/tokens build && pnpm --filter @onlysteps/ui build
       - uses: chromaui/action@v18
         if: env.CHROMATIC_PROJECT_TOKEN != ''
         with:
           projectToken: ${{ env.CHROMATIC_PROJECT_TOKEN }}
           workingDir: packages/ui
-          buildScriptName: build
+          # Built in the step above; Chromatic uploads this folder as is.
           storybookBuildDir: storybook-static
           exitZeroOnChanges: true
           autoAcceptChanges: main
