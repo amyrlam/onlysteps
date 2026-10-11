@@ -58,6 +58,9 @@ final class AppModel {
                 .trimmingCharacters(in: .whitespaces)
             if !name.isEmpty {
                 await updateProfile(userID: session.user.id, ProfileUpdate(displayName: String(name.prefix(40))))
+                // prepare(for:) loads the profile concurrently and may have read
+                // the row before this write; reload so the new name sticks.
+                await loadProfile(userID: session.user.id)
             }
         } catch {
             signInError = error.localizedDescription

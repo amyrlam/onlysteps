@@ -63,8 +63,11 @@ async function postIfDue(supabase: SupabaseClient, g: SlackRow, now: Date): Prom
     rows: (rows ?? []) as LeaderboardRow[],
     groupUrl: WEB_URL ? `${WEB_URL}/groups/${g.group_id}` : undefined,
   });
+  // A stalled webhook must not hold up the remaining groups.
   const res = await fetch(g.webhook_url, {
     method: "POST",
+    redirect: "error",
+    signal: AbortSignal.timeout(10_000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });

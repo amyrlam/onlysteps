@@ -76,3 +76,24 @@ test("winnerMessage escapes names so they can't ping the channel", () => {
   assert.ok(!msg.text.includes("<!channel>"));
   assert.match(msg.text, /\*&lt;!channel&gt;\* won \*R&amp;D &lt;team&gt;\*/);
 });
+
+test("winnerMessage keeps a huge tie under Slack's section limit", () => {
+  const rows = Array.from({ length: 200 }, (_, i) => ({
+    user_id: String(i),
+    display_name: "N".repeat(40),
+    total_steps: 5000,
+    rank: 1,
+  }));
+  const msg = winnerMessage({ appName: "OnlySteps", groupName: "Office", weekStart: "2026-10-05", rows });
+  assert.match(msg.text, /and 190 others/);
+  for (const block of msg.blocks as { text?: { text: string } }[]) {
+    if (block.text) assert.ok(block.text.text.length <= 3000, `section is ${block.text.text.length} chars`);
+  }
+  assert.match((msg.blocks[1] as { text: { text: string } }).text.text, /…and 190 more$/);
+});
+
+test("winnerMessage lists three-way ties with commas", () => {
+  const rows = ["Amy", "Bo", "Cy"].map((display_name, i) => ({ user_id: String(i), display_name, total_steps: 9, rank: 1 }));
+  const msg = winnerMessage({ appName: "OnlySteps", groupName: "Office", weekStart: "2026-10-05", rows });
+  assert.match(msg.text, /\*Amy\*, \*Bo\* and \*Cy\*/);
+});

@@ -20,7 +20,8 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   async function signInWithApple() {
-    await createClient().auth.signInWithOAuth({ provider: "apple", options: { redirectTo: redirectTo() } })
+    const { error } = await createClient().auth.signInWithOAuth({ provider: "apple", options: { redirectTo: redirectTo() } })
+    if (error) setStatus("error")
   }
 
   if (status === "sent") {
@@ -43,7 +44,7 @@ export function LoginForm({ next }: { next: string }) {
         <Button size="lg" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Sending…" : "Email me a sign-in link"}
         </Button>
-        {status === "error" ? <p className="text-destructive text-sm">Couldn’t send the link. Try again.</p> : null}
+        {status === "error" ? <p className="text-destructive text-sm">Couldn’t sign you in. Try again.</p> : null}
       </form>
     </div>
   )

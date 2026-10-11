@@ -77,6 +77,18 @@ function formatRange(weekStartDate: string): string {
   return `${start.toLocaleDateString("en-US", opts)} – ${end.toLocaleDateString("en-US", opts)}`;
 }
 
+// Slack rejects section text over 3,000 characters, so long ties are cut short.
+const MAX_LISTED = 10;
+
+/** "A and B", "A, B and C", or "A, B, … and N others" past MAX_LISTED. */
+function listNames(names: string[]) {
+  if (names.length > MAX_LISTED) {
+    const others = names.length - MAX_LISTED;
+    return `${names.slice(0, MAX_LISTED).join(", ")} and ${others} ${others === 1 ? "other" : "others"}`;
+  }
+  return names.length <= 2 ? names.join(" and ") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+}
+
 /** Slack incoming-webhook payload announcing the week's winner(s). */
 export function winnerMessage(opts: {
   appName: string;
@@ -100,14 +112,16 @@ export function winnerMessage(opts: {
   } else if (winners.length === 1) {
     headline = `🏆 *${name(winners[0])}* won *${groupName}* for ${range} with *${fmt(winners[0].total_steps)}* steps!`;
   } else {
-    const names = winners.map((w) => `*${name(w)}*`).join(" and ");
+    const names = listNames(winners.map((w) => `*${name(w)}*`));
     headline = `🏆 It's a tie in *${groupName}* for ${range}: ${names} with *${fmt(winners[0].total_steps)}* steps each!`;
   }
 
-  const podium = active
-    .filter((r) => r.rank <= 3)
-    .map((r) => `${medals[r.rank - 1]} ${name(r)} · ${fmt(r.total_steps)}`)
-    .join("\n");
+  const onPodium = active.filter((r) => r.rank <= 3);
+  const podiumLines = onPodium
+    .slice(0, MAX_LISTED)
+    .map((r) => `${medals[r.rank - 1]} ${name(r)} · ${fmt(r.total_steps)}`);
+  if (onPodium.length > MAX_LISTED) podiumLines.push(`…and ${onPodium.length - MAX_LISTED} more`);
+  const podium = podiumLines.join("\n");
 
   const prefix = test ? "_Test post from " + appName + "._\n" : "";
   const text = `${prefix}${headline}`;
