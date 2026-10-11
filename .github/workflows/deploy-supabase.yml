@@ -7,9 +7,7 @@ name: Deploy Supabase
 
 on:
   push:
-    # scaffold-monorepo is here only so the first PR's Vercel preview has a
-    # database; remove it once that PR is merged.
-    branches: [main, scaffold-monorepo]
+    branches: [main]
     paths: [supabase/**, .github/workflows/deploy-supabase.yml]
   workflow_dispatch:
 
