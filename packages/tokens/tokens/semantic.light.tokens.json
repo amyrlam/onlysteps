@@ -1,0 +1,93 @@
+{
+  "$description": "Semantic color tokens. Names match shadcn/ui CSS variables.",
+  "semantic": {
+    "$type": "color",
+    "background": {
+      "$value": "{color.white}"
+    },
+    "foreground": {
+      "$value": "{color.neutral.950}"
+    },
+    "card": {
+      "$value": "{color.white}"
+    },
+    "card-foreground": {
+      "$value": "{color.neutral.950}"
+    },
+    "popover": {
+      "$value": "{color.white}"
+    },
+    "popover-foreground": {
+      "$value": "{color.neutral.950}"
+    },
+    "primary": {
+      "$value": "{color.green.500}"
+    },
+    "primary-foreground": {
+      "$value": "{color.neutral.950}"
+    },
+    "secondary": {
+      "$value": "{color.neutral.100}"
+    },
+    "secondary-foreground": {
+      "$value": "{color.neutral.900}"
+    },
+    "muted": {
+      "$value": "{color.neutral.100}"
+    },
+    "muted-foreground": {
+      "$value": "{color.neutral.500}"
+    },
+    "accent": {
+      "$value": "{color.green.100}"
+    },
+    "accent-foreground": {
+      "$value": "{color.green.900}"
+    },
+    "destructive": {
+      "$value": "{color.red.500}"
+    },
+    "destructive-foreground": {
+      "$value": "{color.white}"
+    },
+    "success": {
+      "$value": "{color.green.600}"
+    },
+    "warning": {
+      "$value": "{color.amber.500}"
+    },
+    "border": {
+      "$value": "{color.neutral.200}"
+    },
+    "input": {
+      "$value": "{color.neutral.200}"
+    },
+    "ring": {
+      "$value": "{color.green.500}"
+    },
+    "podium-gold": {
+      "$value": "{color.amber.500}"
+    },
+    "podium-silver": {
+      "$value": "{color.neutral.400}"
+    },
+    "podium-bronze": {
+      "$value": "{color.amber.700}"
+    },
+    "chart-1": {
+      "$value": "{color.green.500}"
+    },
+    "chart-2": {
+      "$value": "{color.sky.500}"
+    },
+    "chart-3": {
+      "$value": "{color.violet.500}"
+    },
+    "chart-4": {
+      "$value": "{color.amber.500}"
+    },
+    "chart-5": {
+      "$value": "{color.red.500}"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@onlysteps/functions",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "description": "Supabase Edge Functions. _shared/ holds runtime-neutral code also used by the web app.",
+  "exports": {
+    "./weekly": "./_shared/weekly.ts"
+  },
+  "scripts": {
+    "test": "node --test _shared/*.test.ts"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@onlysteps/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "description": "OnlySteps design tokens in the Design Tokens Community Group (DTCG) format, built for web (CSS, TS) and iOS (Swift).",
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./dist/tokens.json"
+  },
+  "files": ["dist", "tokens"],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs --check"
+  },
+  "devDependencies": {
+    "style-dictionary": "^5.6.1"
+  }
+}

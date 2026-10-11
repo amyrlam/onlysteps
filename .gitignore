@@ -1,0 +1,20 @@
+node_modules/
+.next/
+dist/
+storybook-static/
+*.tsbuildinfo
+.env
+.env*.local
+.DS_Store
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# iOS
+apps/ios/*.xcodeproj/
+xcuserdata/
+DerivedData/
+*.xcuserstate
+apps/ios/Config/Secrets.xcconfig
+next-env.d.ts

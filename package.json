@@ -1,0 +1,18 @@
+{
+  "name": "onlysteps",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --workspace-concurrency=1 build",
+    "dev": "pnpm --filter @onlysteps/web dev",
+    "storybook": "pnpm --filter @onlysteps/ui storybook",
+    "tokens": "pnpm --filter @onlysteps/tokens build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  }
+}

@@ -1,0 +1,64 @@
+# XcodeGen spec. Run `xcodegen` in this folder to (re)generate OnlySteps.xcodeproj.
+# The .xcodeproj is gitignored: edit this file, not the project in Xcode.
+name: OnlySteps
+
+options:
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+# Base.xcconfig holds APP_DISPLAY_NAME, BUNDLE_ID_PREFIX, Supabase keys, etc.
+# It optionally includes Config/Secrets.xcconfig (gitignored).
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
+
+targets:
+  OnlySteps:
+    type: application
+    platform: iOS
+    sources:
+      - OnlySteps
+    settings:
+      base:
+        PRODUCT_NAME: OnlySteps
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).ios
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_FILE: OnlySteps/Support/Info.plist
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: $(APP_DISPLAY_NAME)
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        CODE_SIGN_ENTITLEMENTS: OnlySteps/Support/OnlySteps.entitlements
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    scheme:
+      testTargets:
+        - OnlyStepsTests
+
+  OnlyStepsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - OnlyStepsTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_ID_PREFIX).ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: OnlySteps

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  web:
+    name: Tokens, UI, web, functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Tokens are built and Tokens.swift is current
+        run: pnpm --filter @onlysteps/tokens test
+      - name: Weekly winner logic
+        run: pnpm --filter @onlysteps/functions test
+      - name: Build tokens CSS
+        run: pnpm --filter @onlysteps/tokens build
+      - name: Typecheck UI
+        run: pnpm --filter @onlysteps/ui typecheck
+      - name: Build Storybook
+        run: pnpm --filter @onlysteps/ui build
+      - name: Build web
+        run: pnpm --filter @onlysteps/web build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+
+  database:
+    name: Database migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Apply migrations to a local Supabase
+        run: supabase db start
+
+  ios:
+    name: iOS build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - name: Generate project
+        working-directory: apps/ios
+        run: xcodegen
+      - name: Build app and tests
+        working-directory: apps/ios
+        run: |
+          xcodebuild build-for-testing \
+            -project OnlySteps.xcodeproj \
+            -scheme OnlySteps \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
