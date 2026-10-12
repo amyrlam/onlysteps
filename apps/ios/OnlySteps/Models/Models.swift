@@ -65,6 +65,20 @@ struct InvitePreview: Decodable, Sendable {
     }
 }
 
+/// The signed-in user's own `group_removals` row for a group: present when an
+/// owner removed them, with any request to rejoin.
+struct GroupRemoval: Decodable, Sendable {
+    let requestedAt: String?
+    let dismissedAt: String?
+
+    static let columns = "requested_at, dismissed_at"
+
+    enum CodingKeys: String, CodingKey {
+        case requestedAt = "requested_at"
+        case dismissedAt = "dismissed_at"
+    }
+}
+
 /// Result row of `group_leaderboard(gid, week)`.
 struct LeaderboardEntry: Decodable, Identifiable, Sendable {
     let userID: UUID

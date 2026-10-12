@@ -418,3 +418,7 @@ enabled = true
 [functions.weekly-winner]
 # Called by pg_cron with a shared secret header instead of a user JWT.
 verify_jwt = false
+
+[functions.notify-rejoin-request]
+# Called by signed-in users after request_rejoin; checks the JWT itself too.
+verify_jwt = true
