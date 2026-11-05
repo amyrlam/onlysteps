@@ -16,7 +16,7 @@ Web app (Next.js)  ◀── groups, leaderboards ──▶  Supabase (Postgres 
                                    pg_cron, hourly ──▶ weekly-winner Edge Function ──▶ Slack webhook
 ```
 
-A browser can't read Apple Health, so steps always come from the iPhone app. The web app is for signing in, managing groups, invites, and Slack settings, and viewing leaderboards.
+A browser can't read Apple Health, so automatic step counts come from the iPhone app. The web app is for signing in, typing in step totals by hand, managing groups, invites, and Slack settings, and viewing leaderboards.
 
 | Path | What it is |
 | --- | --- |

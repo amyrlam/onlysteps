@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { winnerMessage, weekStart, type LeaderboardRow } from "@onlysteps/functions/weekly"
+import { recentDays, winnerMessage, weekStart, type LeaderboardRow } from "@onlysteps/functions/weekly"
 import { APP_NAME, SITE_URL } from "@/lib/brand"
 import { createClient } from "@/lib/supabase/server"
 
@@ -35,6 +35,10 @@ function intInRange(value: FormDataEntryValue | null, fallback: number, min: num
   const n = value == null ? fallback : Number(value)
   return Number.isInteger(n) && n >= min && n <= max ? n : null
 }
+
+/** Matches the `daily_steps.steps` check constraint. */
+const MAX_STEPS_PER_DAY = 200_000
+const LOG_STEPS_DAYS = 7
 
 export type ActionState = { error?: string; ok?: string } | undefined
 
@@ -88,6 +92,35 @@ export async function dismissRejoin(groupId: string, userId: string): Promise<Ac
 export async function liftRemoval(groupId: string, userId: string): Promise<ActionState> {
   const supabase = await createClient()
   return ownerAction(groupId, () => supabase.from("group_removals").delete().eq("group_id", groupId).eq("user_id", userId))
+}
+
+/** Saves a typed-in step total for one recent day, replacing any total already saved for it. */
+export async function logSteps(_: ActionState, form: FormData): Promise<ActionState> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Sign in to log steps." }
+
+  const groupId = String(form.get("groupId"))
+  const { data: group } = await supabase.from("groups").select("time_zone").eq("id", groupId).maybeSingle()
+  if (!group) return { error: "Group not found." }
+
+  const day = String(form.get("day"))
+  if (!recentDays(new Date(), group.time_zone, LOG_STEPS_DAYS).includes(day)) {
+    return { error: `Pick a day in the last ${LOG_STEPS_DAYS} days.` }
+  }
+  const rawSteps = String(form.get("steps") ?? "").trim()
+  const steps = rawSteps === "" ? null : intInRange(rawSteps, 0, 0, MAX_STEPS_PER_DAY)
+  if (steps === null) return { error: `Enter a whole number from 0 to ${MAX_STEPS_PER_DAY.toLocaleString("en-US")}.` }
+
+  const { error } = await supabase.from("daily_steps").upsert(
+    { user_id: user.id, day, steps, source: "manual", updated_at: new Date().toISOString() },
+    { onConflict: "user_id,day" },
+  )
+  if (error) return { error: error.message }
+  revalidatePath(`/groups/${groupId}`)
+  return { ok: `Saved ${steps.toLocaleString("en-US")} steps.` }
 }
 
 export async function saveSlackSettings(_: ActionState, form: FormData): Promise<ActionState> {

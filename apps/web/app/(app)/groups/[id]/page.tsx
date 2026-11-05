@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { addDays, weekStart } from "@onlysteps/functions/weekly"
+import { addDays, recentDays, weekStart } from "@onlysteps/functions/weekly"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@onlysteps/ui/components/card"
 import { Leaderboard } from "@onlysteps/ui/components/leaderboard"
 import { Tabs, TabsList, TabsTrigger } from "@onlysteps/ui/components/tabs"
 import { SITE_URL } from "@/lib/brand"
 import { getUser } from "@/lib/supabase/server"
 import { InviteLink } from "./invite-link"
+import { LogStepsForm } from "./log-steps-form"
 import { RemovedMembers } from "./removed-members"
 import { SlackSettingsForm } from "./slack-settings-form"
 
@@ -28,11 +29,13 @@ export default async function GroupPage({
 
   const thisWeek = weekStart(new Date(), group.time_zone)
   const showing = week === "last" ? addDays(thisWeek, -7) : thisWeek
+  const logDays = recentDays(new Date(), group.time_zone, 7)
 
-  const [{ data: rows }, { data: me }, { data: slack }] = await Promise.all([
+  const [{ data: rows }, { data: me }, { data: slack }, { data: myDays }] = await Promise.all([
     supabase.rpc("group_leaderboard", { gid: id, week: showing }),
     supabase.from("group_members").select("role").eq("group_id", id).eq("user_id", user!.id).single(),
     supabase.from("group_slack_settings").select("webhook_url, enabled, post_weekday, post_hour").eq("group_id", id).maybeSingle(),
+    supabase.from("daily_steps").select("day, steps").eq("user_id", user!.id).in("day", logDays),
   ])
   const isOwner = me?.role === "owner"
   const { data: removed } = isOwner ? await supabase.rpc("group_removed_members", { gid: id }) : { data: null }
@@ -44,7 +47,7 @@ export default async function GroupPage({
     steps: Number(r.total_steps),
     rank: Number(r.rank),
   }))
-  const hasSteps = entries.some((e) => e.userId === user!.id && e.steps > 0)
+  const logged = Object.fromEntries((myDays ?? []).map((d) => [d.day, d.steps]))
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,6 +62,16 @@ export default async function GroupPage({
           </a>
         ) : null}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Log your steps</CardTitle>
+          <CardDescription>Enter a day’s total. It counts in all your groups.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LogStepsForm groupId={id} days={logDays} logged={logged} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -77,11 +90,6 @@ export default async function GroupPage({
             </TabsList>
           </Tabs>
           <Leaderboard entries={entries} currentUserId={user!.id} />
-          {!hasSteps && week !== "last" ? (
-            <p className="text-muted-foreground text-sm">
-              Your steps come from the iPhone app. Sign in there with the same account and they’ll appear here.
-            </p>
-          ) : null}
         </CardContent>
       </Card>
 
