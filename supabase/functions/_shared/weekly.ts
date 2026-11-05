@@ -45,6 +45,12 @@ export function addDays(date: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** The last `count` calendar days in `tz`, from today backwards. */
+export function recentDays(now: Date, tz: string, count: number): string[] {
+  const today = localParts(now, tz).date;
+  return Array.from({ length: count }, (_, i) => addDays(today, -i));
+}
+
 /** Monday of the week containing `now`, in `tz`. */
 export function weekStart(now: Date, tz: string): string {
   const { date, weekday } = localParts(now, tz);

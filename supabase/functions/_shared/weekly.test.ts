@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dueWeek, localParts, weekStart, winnerMessage } from "./weekly.ts";
+import { dueWeek, localParts, recentDays, weekStart, winnerMessage } from "./weekly.ts";
 
 const NY = "America/New_York";
 
@@ -96,4 +96,11 @@ test("winnerMessage lists three-way ties with commas", () => {
   const rows = ["Amy", "Bo", "Cy"].map((display_name, i) => ({ user_id: String(i), display_name, total_steps: 9, rank: 1 }));
   const msg = winnerMessage({ appName: "OnlySteps", groupName: "Office", weekStart: "2026-10-05", rows });
   assert.match(msg.text, /\*Amy\*, \*Bo\* and \*Cy\*/);
+});
+
+test("recentDays counts back from today in the group's time zone", () => {
+  // 2026-10-12 03:30 UTC is still Sunday Oct 11 in New York.
+  assert.deepEqual(recentDays(new Date("2026-10-12T03:30:00Z"), NY, 3), ["2026-10-11", "2026-10-10", "2026-10-09"]);
+  // Crosses a month boundary.
+  assert.deepEqual(recentDays(new Date("2026-11-01T12:00:00Z"), "UTC", 2), ["2026-11-01", "2026-10-31"]);
 });
