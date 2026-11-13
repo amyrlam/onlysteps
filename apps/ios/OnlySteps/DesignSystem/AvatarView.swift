@@ -1,8 +1,11 @@
 import SwiftUI
 
-/// A circle with someone's initials, colored consistently per name.
+/// A circle with someone's picture, or their initials on a color that is
+/// consistent per name while the picture loads or when they have none.
 struct AvatarView: View {
     let name: String
+    /// The profile's `avatar_url`, if any.
+    var imageURL: String? = nil
     var size: CGFloat = OSSpace._10
     var isHighlighted = false
 
@@ -15,6 +18,16 @@ struct AvatarView: View {
                 Text(Initials.from(name))
                     .font(.system(size: size * 0.4, weight: .semibold, design: .rounded))
                     .foregroundStyle(OSColor.primaryForeground)
+            }
+            .overlay {
+                if let imageURL, let url = URL(string: imageURL) {
+                    AsyncImage(url: url) { image in
+                        image.resizable().scaledToFill()
+                    } placeholder: {
+                        Color.clear
+                    }
+                    .clipShape(Circle())
+                }
             }
             .overlay {
                 if isHighlighted {

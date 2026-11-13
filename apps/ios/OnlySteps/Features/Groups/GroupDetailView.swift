@@ -93,7 +93,7 @@ private struct PodiumView: View {
     private func spot(_ entry: LeaderboardEntry, height: CGFloat) -> some View {
         let isMe = entry.userID == myID
         return VStack(spacing: OSSpace._2) {
-            AvatarView(name: entry.displayName, size: OSSpace._12, isHighlighted: isMe)
+            AvatarView(name: entry.displayName, imageURL: entry.avatarURL, size: OSSpace._12, isHighlighted: isMe)
             Text(isMe ? "You" : entry.displayName)
                 .font(.subheadline.weight(isMe ? .bold : .medium))
                 .lineLimit(1)
@@ -121,7 +121,7 @@ private struct LeaderboardRow: View {
                 .monospacedDigit()
                 .foregroundStyle(OSColor.mutedForeground)
                 .frame(minWidth: OSSpace._6)
-            AvatarView(name: entry.displayName, size: OSSpace._8)
+            AvatarView(name: entry.displayName, imageURL: entry.avatarURL, size: OSSpace._8)
             Text(isMe ? "\(entry.displayName) (you)" : entry.displayName)
                 .font(.body.weight(isMe ? .semibold : .regular))
                 .lineLimit(1)
