@@ -1,8 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ChevronRightIcon, UsersIcon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@onlysteps/ui/components/avatar"
 import { Card } from "@onlysteps/ui/components/card"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@onlysteps/ui/components/empty"
+import { initials } from "@onlysteps/ui/lib/utils"
+import { groupPictureUrl } from "@/lib/group-picture"
 import { getUser } from "@/lib/supabase/server"
 import { CreateGroupDialog } from "./create-group-dialog"
 
@@ -40,7 +43,13 @@ export default async function GroupsPage() {
             <li key={g.id}>
               <Link href={`/groups/${g.id}`}>
                 <Card className="hover:bg-muted/50 flex-row items-center justify-between px-4 transition-colors">
-                  <span className="font-medium">{g.name}</span>
+                  <span className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={groupPictureUrl(g.id)} alt="" />
+                      <AvatarFallback>{initials(g.name)}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{g.name}</span>
+                  </span>
                   <ChevronRightIcon className="text-muted-foreground size-4" />
                 </Card>
               </Link>

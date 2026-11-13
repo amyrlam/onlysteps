@@ -16,6 +16,14 @@ enum AppConfig {
     /// can't sign Sign in with Apple. Email sign-in is always available.
     static let appleSignInEnabled: Bool = string("AppleSignInEnabled", fallback: "YES") == "YES"
 
+    /// Where a group's picture lives: a public Storage bucket with one PNG
+    /// per group id. Groups without one fall back to initials.
+    static func groupPictureURL(_ id: UUID) -> String {
+        supabaseURL
+            .appending(path: "storage/v1/object/public/group-pictures/\(id.uuidString.lowercased()).png")
+            .absoluteString
+    }
+
     static func inviteURL(code: String) -> URL {
         InviteLink.url(for: code, base: webBaseURL)
     }

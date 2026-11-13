@@ -2,10 +2,13 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { addDays, recentDays, weekStart } from "@onlysteps/functions/weekly"
+import { Avatar, AvatarFallback, AvatarImage } from "@onlysteps/ui/components/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@onlysteps/ui/components/card"
 import { Leaderboard } from "@onlysteps/ui/components/leaderboard"
 import { Tabs, TabsList, TabsTrigger } from "@onlysteps/ui/components/tabs"
+import { initials } from "@onlysteps/ui/lib/utils"
 import { SITE_URL } from "@/lib/brand"
+import { groupPictureUrl } from "@/lib/group-picture"
 import { getUser } from "@/lib/supabase/server"
 import { InviteLink } from "./invite-link"
 import { LogStepsForm } from "./log-steps-form"
@@ -55,7 +58,13 @@ export default async function GroupPage({
         <Link href="/groups" className="text-muted-foreground text-sm hover:underline">
           ← Groups
         </Link>
-        <h1 className="text-3xl font-semibold">{group.name}</h1>
+        <div className="flex items-center gap-3">
+          <Avatar size="lg">
+            <AvatarImage src={groupPictureUrl(group.id)} alt="" />
+            <AvatarFallback>{initials(group.name)}</AvatarFallback>
+          </Avatar>
+          <h1 className="text-3xl font-semibold">{group.name}</h1>
+        </div>
         {requestCount > 0 ? (
           <a href="#removed" className="text-sm font-medium hover:underline">
             {requestCount === 1 ? "1 request to rejoin" : `${requestCount} requests to rejoin`} →

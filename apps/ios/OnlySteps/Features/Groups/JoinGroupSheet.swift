@@ -36,7 +36,7 @@ struct JoinGroupSheet: View {
                 if let preview {
                     Section {
                         HStack(spacing: OSSpace._3) {
-                            AvatarView(name: preview.name)
+                            AvatarView(name: preview.name, imageURL: AppConfig.groupPictureURL(preview.id))
                             VStack(alignment: .leading) {
                                 Text(preview.name).font(.headline)
                                 Text("^[\(preview.memberCount) member](inflect: true)")
