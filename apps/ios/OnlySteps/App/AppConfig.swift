@@ -12,6 +12,10 @@ enum AppConfig {
     /// Website that serves invite links, e.g. https://onlysteps.app
     static let webBaseURL: URL = url("WebBaseURL")
 
+    /// False when built for a free Apple ID (`PAID_APPLE_TEAM = NO`), which
+    /// can't sign Sign in with Apple. Email sign-in is always available.
+    static let appleSignInEnabled: Bool = string("AppleSignInEnabled", fallback: "YES") == "YES"
+
     static func inviteURL(code: String) -> URL {
         InviteLink.url(for: code, base: webBaseURL)
     }
