@@ -48,7 +48,7 @@
       "$value": "{color.red.500}"
     },
     "destructive-foreground": {
-      "$value": "{color.white}"
+      "$value": "{color.neutral.950}"
     },
     "success": {
       "$value": "{color.green.400}"
@@ -60,7 +60,7 @@
       "$value": "{color.neutral.800}"
     },
     "input": {
-      "$value": "{color.neutral.700}"
+      "$value": "{color.neutral.500}"
     },
     "ring": {
       "$value": "{color.green.400}"

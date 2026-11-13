@@ -4,7 +4,11 @@ struct GroupDetailView: View {
     let group: StepGroup
 
     @Environment(AppModel.self) private var app
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var model: LeaderboardModel
+    /// False while the podium waits at zero, then true as it grows.
+    @State private var revealed = false
+    @State private var confettiRun = 0
 
     init(group: StepGroup) {
         self.group = group
@@ -27,9 +31,27 @@ struct GroupDetailView: View {
         }
     }
 
+    /// Grows the podium from zero and throws confetti. With Reduce Motion
+    /// on, the standings just appear.
+    private func playReveal() {
+        guard !reduceMotion, model.entries.contains(where: { $0.totalSteps > 0 }) else {
+            revealed = true
+            return
+        }
+        revealed = false
+        Task {
+            try? await Task.sleep(for: .milliseconds(250))
+            withAnimation(.spring(duration: 1.6, bounce: 0.2)) { revealed = true }
+            confettiRun += 1
+        }
+    }
+
     private func weekButton(_ label: String, systemImage: String, by change: Int) -> some View {
         Button {
-            Task { await model.showWeek(offset: model.weekOffset + change) }
+            Task {
+                await model.showWeek(offset: model.weekOffset + change)
+                playReveal()
+            }
         } label: {
             Image(systemName: systemImage)
                 .font(.headline)
@@ -66,10 +88,37 @@ struct GroupDetailView: View {
                         ProgressView().frame(maxWidth: .infinity)
                     }
                 } else {
-                    PodiumView(entries: Array(model.entries.prefix(3)), myID: app.userID)
+                    PodiumView(entries: Array(model.entries.prefix(3)), myID: app.userID, revealed: revealed)
                     VStack(spacing: OSSpace._2) {
                         ForEach(model.entries.dropFirst(3)) { entry in
-                            LeaderboardRow(entry: entry, isMe: entry.userID == app.userID)
+                            LeaderboardRow(entry: entry, isMe: entry.userID == app.userID, revealed: revealed)
+                        }
+                    }
+                    if !reduceMotion {
+                        Button("Replay", systemImage: "arrow.counterclockwise", action: playReveal)
+                            .font(.subheadline.weight(.medium))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                }
+
+                if !model.records.isEmpty {
+                    OSCard {
+                        VStack(alignment: .leading, spacing: OSSpace._3) {
+                            Text("Records").font(.headline)
+                            ForEach(model.records) { record in
+                                HStack(spacing: OSSpace._3) {
+                                    AvatarView(name: record.entry.displayName, imageURL: record.entry.avatarURL, size: OSSpace._10)
+                                    VStack(alignment: .leading) {
+                                        Text(record.title)
+                                            .font(.footnote)
+                                            .foregroundStyle(OSColor.mutedForeground)
+                                        Text(record.entry.userID == app.userID ? "You" : record.entry.displayName)
+                                            .font(.body.weight(.semibold))
+                                    }
+                                    Spacer()
+                                    StepCountText(steps: record.steps, font: .body.weight(.semibold))
+                                }
+                            }
                         }
                     }
                 }
@@ -91,6 +140,7 @@ struct GroupDetailView: View {
             .padding(OSSpace._4)
         }
         .background(OSColor.background)
+        .overlay { ConfettiView(run: confettiRun) }
         .navigationTitle(group.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -101,7 +151,11 @@ struct GroupDetailView: View {
             }
         }
         .refreshable { await model.refresh() }
-        .task { await model.load() }
+        .task {
+            await model.load()
+            playReveal()
+            await model.loadRecords()
+        }
     }
 }
 
@@ -109,6 +163,7 @@ struct GroupDetailView: View {
 private struct PodiumView: View {
     let entries: [LeaderboardEntry]
     let myID: UUID?
+    let revealed: Bool
 
     var body: some View {
         HStack(alignment: .bottom, spacing: OSSpace._3) {
@@ -129,11 +184,12 @@ private struct PodiumView: View {
             Text(isMe ? "You" : entry.displayName)
                 .font(.subheadline.weight(isMe ? .bold : .medium))
                 .lineLimit(1)
-            StepCountText(steps: entry.totalSteps, font: .footnote)
+            StepCountText(steps: revealed ? entry.totalSteps : 0, font: .footnote)
                 .foregroundStyle(OSColor.mutedForeground)
             RoundedRectangle(cornerRadius: OSRadius.md, style: .continuous)
                 .fill(RankBadge.color(for: entry.rank).opacity(0.25))
-                .frame(height: height)
+                // Never shorter than the rank badge sitting on it.
+                .frame(height: revealed ? height : OSSpace._12)
                 .overlay(alignment: .top) {
                     RankBadge(rank: entry.rank).padding(.top, OSSpace._2)
                 }
@@ -145,6 +201,7 @@ private struct PodiumView: View {
 private struct LeaderboardRow: View {
     let entry: LeaderboardEntry
     let isMe: Bool
+    let revealed: Bool
 
     var body: some View {
         HStack(spacing: OSSpace._3) {
@@ -158,7 +215,7 @@ private struct LeaderboardRow: View {
                 .font(.body.weight(isMe ? .semibold : .regular))
                 .lineLimit(1)
             Spacer()
-            StepCountText(steps: entry.totalSteps, font: .body.weight(.semibold))
+            StepCountText(steps: revealed ? entry.totalSteps : 0, font: .body.weight(.semibold))
         }
         .padding(.horizontal, OSSpace._4)
         .padding(.vertical, OSSpace._3)

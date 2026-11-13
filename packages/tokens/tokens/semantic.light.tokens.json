@@ -36,7 +36,7 @@
       "$value": "{color.neutral.100}"
     },
     "muted-foreground": {
-      "$value": "{color.neutral.500}"
+      "$value": "{color.neutral.600}"
     },
     "accent": {
       "$value": "{color.green.100}"
@@ -45,7 +45,7 @@
       "$value": "{color.green.900}"
     },
     "destructive": {
-      "$value": "{color.red.500}"
+      "$value": "{color.red.700}"
     },
     "destructive-foreground": {
       "$value": "{color.white}"
@@ -60,7 +60,7 @@
       "$value": "{color.neutral.200}"
     },
     "input": {
-      "$value": "{color.neutral.200}"
+      "$value": "{color.neutral.500}"
     },
     "ring": {
       "$value": "{color.green.500}"
