@@ -26,7 +26,7 @@ enum OSColor {
     static let ring = Color.dynamic(light: .init(red: 0, green: 0.7765, blue: 0.3804, alpha: 1), dark: .init(red: 0.1686, green: 0.8824, blue: 0.4745, alpha: 1))
     static let podiumGold = Color.dynamic(light: .init(red: 0.9608, green: 0.6431, blue: 0, alpha: 1), dark: .init(red: 1, green: 0.7843, blue: 0.3451, alpha: 1))
     static let podiumSilver = Color.dynamic(light: .init(red: 0.6118, green: 0.6275, blue: 0.6588, alpha: 1), dark: .init(red: 0.8235, green: 0.8314, blue: 0.8471, alpha: 1))
-    static let podiumBronze = Color.dynamic(light: .init(red: 0.6627, green: 0.4196, blue: 0, alpha: 1), dark: .init(red: 0.9608, green: 0.6431, blue: 0, alpha: 1))
+    static let podiumBronze = Color.dynamic(light: .init(red: 0.8706, green: 0.5608, blue: 0.3412, alpha: 1), dark: .init(red: 0.9608, green: 0.6431, blue: 0, alpha: 1))
     static let chart1 = Color.dynamic(light: .init(red: 0, green: 0.7765, blue: 0.3804, alpha: 1), dark: .init(red: 0.1686, green: 0.8824, blue: 0.4745, alpha: 1))
     static let chart2 = Color.dynamic(light: .init(red: 0, green: 0.6471, blue: 0.9059, alpha: 1), dark: .init(red: 0.5176, green: 0.8235, blue: 1, alpha: 1))
     static let chart3 = Color.dynamic(light: .init(red: 0.549, green: 0.3686, blue: 0.9098, alpha: 1), dark: .init(red: 0.7647, green: 0.6902, blue: 0.9922, alpha: 1))
