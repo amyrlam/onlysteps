@@ -87,7 +87,7 @@ export default async function GroupPage({
       <Card>
         <CardHeader>
           <CardTitle>Leaderboard</CardTitle>
-          <CardDescription>Monday to Sunday, {group.time_zone}</CardDescription>
+          <CardDescription>Monday to Sunday</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Tabs value={week === "last" ? "last" : "this"}>
