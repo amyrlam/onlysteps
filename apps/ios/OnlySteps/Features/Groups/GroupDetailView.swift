@@ -67,7 +67,7 @@ struct GroupDetailView: View {
                     AvatarView(name: group.name, imageURL: AppConfig.groupPictureURL(group.id), size: OSSpace._12)
                     VStack(alignment: .leading, spacing: OSSpace._1) {
                         Text(weekTitle).font(.title2.bold())
-                        Text("Monday to Sunday · \(group.timeZone)")
+                        Text("Monday to Sunday")
                             .font(.footnote)
                             .foregroundStyle(OSColor.mutedForeground)
                     }

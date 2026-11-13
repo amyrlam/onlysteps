@@ -294,6 +294,19 @@
         }
       }
     },
+    "bronze": {
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.72,
+            0.12,
+            55
+          ],
+          "hex": "#de8f57"
+        }
+      }
+    },
     "red": {
       "100": {
         "$value": {

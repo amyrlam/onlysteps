@@ -72,7 +72,7 @@
       "$value": "{color.neutral.400}"
     },
     "podium-bronze": {
-      "$value": "{color.amber.700}"
+      "$value": "{color.bronze.500}"
     },
     "chart-1": {
       "$value": "{color.green.500}"
