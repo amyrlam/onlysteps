@@ -10,7 +10,7 @@ struct OnlyStepsApp: App {
         WindowGroup {
             RootView()
                 .environment(app)
-                .tint(OSColor.primary)
+                .tint(OSColor.accentForeground)
         }
     }
 }

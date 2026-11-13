@@ -109,7 +109,7 @@ struct SignInView: View {
         VStack(spacing: OSSpace._2) {
             Image(systemName: "envelope.badge")
                 .font(.title)
-                .foregroundStyle(OSColor.primary)
+                .foregroundStyle(OSColor.accentForeground)
             Text("Check your email")
                 .font(.headline)
             Text("We sent a sign-in link to \(sentTo). Open it on this iPhone to finish signing in.")
