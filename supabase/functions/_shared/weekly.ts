@@ -6,7 +6,12 @@ export type LeaderboardRow = {
   display_name: string;
   total_steps: number;
   rank: number;
+  /** Slack member ID, for people who want to be tagged in posts. */
+  slack_user_id?: string | null;
 };
+
+/** Matches the `profiles.slack_user_id` check constraint. */
+export const SLACK_MEMBER_ID = /^[UW][A-Z0-9]{6,20}$/;
 
 export type SlackSchedule = {
   post_weekday: number; // ISO weekday, 1 = Monday
@@ -106,7 +111,9 @@ export function winnerMessage(opts: {
 }) {
   const { appName, weekStart: ws, rows, groupUrl, test } = opts;
   const groupName = slackEscape(opts.groupName);
-  const name = (r: LeaderboardRow) => slackEscape(r.display_name);
+  // People who saved a Slack member ID are tagged; everyone else is named.
+  const name = (r: LeaderboardRow) =>
+    r.slack_user_id && SLACK_MEMBER_ID.test(r.slack_user_id) ? `<@${r.slack_user_id}>` : slackEscape(r.display_name);
   const range = formatRange(ws);
   const active = rows.filter((r) => r.total_steps > 0);
   const winners = active.filter((r) => r.rank === 1);

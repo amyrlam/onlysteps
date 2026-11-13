@@ -14,6 +14,7 @@ import { InviteLink } from "./invite-link"
 import { LogStepsForm } from "./log-steps-form"
 import { RemovedMembers } from "./removed-members"
 import { SlackSettingsForm } from "./slack-settings-form"
+import { SlackTagForm } from "./slack-tag-form"
 
 export const metadata: Metadata = { title: "Leaderboard" }
 
@@ -34,11 +35,12 @@ export default async function GroupPage({
   const showing = week === "last" ? addDays(thisWeek, -7) : thisWeek
   const logDays = recentDays(new Date(), group.time_zone, 7)
 
-  const [{ data: rows }, { data: me }, { data: slack }, { data: myDays }] = await Promise.all([
+  const [{ data: rows }, { data: me }, { data: slack }, { data: myDays }, { data: myProfile }] = await Promise.all([
     supabase.rpc("group_leaderboard", { gid: id, week: showing }),
     supabase.from("group_members").select("role").eq("group_id", id).eq("user_id", user!.id).single(),
     supabase.from("group_slack_settings").select("webhook_url, enabled, post_weekday, post_hour").eq("group_id", id).maybeSingle(),
     supabase.from("daily_steps").select("day, steps").eq("user_id", user!.id).in("day", logDays),
+    supabase.from("profiles").select("slack_user_id").eq("id", user!.id).maybeSingle(),
   ])
   const isOwner = me?.role === "owner"
   const { data: removed } = isOwner ? await supabase.rpc("group_removed_members", { gid: id }) : { data: null }
@@ -126,6 +128,19 @@ export default async function GroupPage({
           </CardContent>
         </Card>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Get tagged in Slack</CardTitle>
+          <CardDescription>
+            Results posted to Slack will @-mention you instead of printing your name. In Slack, open your profile,
+            choose ⋯, then Copy member ID.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SlackTagForm groupId={id} memberId={myProfile?.slack_user_id ?? null} />
+        </CardContent>
+      </Card>
 
       {isOwner ? (
         <Card>

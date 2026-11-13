@@ -8,9 +8,30 @@ export type Database = {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; display_name: string; avatar_url: string | null; time_zone: string; created_at: string }
-        Insert: { id: string; display_name?: string; avatar_url?: string | null; time_zone?: string; created_at?: string }
-        Update: { id?: string; display_name?: string; avatar_url?: string | null; time_zone?: string; created_at?: string }
+        Row: {
+          id: string
+          display_name: string
+          avatar_url: string | null
+          time_zone: string
+          created_at: string
+          slack_user_id: string | null
+        }
+        Insert: {
+          id: string
+          display_name?: string
+          avatar_url?: string | null
+          time_zone?: string
+          created_at?: string
+          slack_user_id?: string | null
+        }
+        Update: {
+          id?: string
+          display_name?: string
+          avatar_url?: string | null
+          time_zone?: string
+          created_at?: string
+          slack_user_id?: string | null
+        }
         Relationships: []
       }
       groups: {
@@ -115,7 +136,14 @@ export type Database = {
       group_for_invite: { Args: { code: string }; Returns: { id: string; name: string; member_count: number }[] }
       group_leaderboard: {
         Args: { gid: string; week?: string }
-        Returns: { user_id: string; display_name: string; avatar_url: string | null; total_steps: number; rank: number }[]
+        Returns: {
+          user_id: string
+          display_name: string
+          avatar_url: string | null
+          total_steps: number
+          rank: number
+          slack_user_id: string | null
+        }[]
       }
       week_start: { Args: { tz: string; at?: string }; Returns: string }
     }
