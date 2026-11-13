@@ -11,6 +11,9 @@
 	<string>$(WEB_BASE_URL)</string>
 	<key>AppleSignInEnabled</key>
 	<string>$(PAID_APPLE_TEAM)</string>
+	<!-- Only standard HTTPS, so App Store Connect can skip the export compliance question. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>$(APP_DISPLAY_NAME) reads your daily step count so it can show your progress and share daily totals with the groups you join.</string>
 	<key>CFBundleURLTypes</key>
