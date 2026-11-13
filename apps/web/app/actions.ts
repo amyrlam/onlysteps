@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { recentDays, winnerMessage, weekStart, type LeaderboardRow } from "@onlysteps/functions/weekly"
+import { recentDays, SLACK_MEMBER_ID, winnerMessage, weekStart, type LeaderboardRow } from "@onlysteps/functions/weekly"
 import { APP_NAME, SITE_URL } from "@/lib/brand"
 import { createClient } from "@/lib/supabase/server"
 
@@ -144,6 +144,24 @@ export async function saveSlackSettings(_: ActionState, form: FormData): Promise
   if (error) return { error: error.message }
   revalidatePath(`/groups/${groupId}`)
   return { ok: "Saved." }
+}
+
+/** Saves (or clears) the signed-in person's Slack member ID, used to tag them in posts. */
+export async function saveSlackMemberId(_: ActionState, form: FormData): Promise<ActionState> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Sign in to save this." }
+
+  const memberId = String(form.get("slackMemberId") ?? "").trim().toUpperCase()
+  if (memberId !== "" && !SLACK_MEMBER_ID.test(memberId)) {
+    return { error: "That doesn’t look like a Slack member ID. It starts with U, like U0123ABCD." }
+  }
+  const { error } = await supabase.from("profiles").update({ slack_user_id: memberId || null }).eq("id", user.id)
+  if (error) return { error: error.message }
+  revalidatePath(`/groups/${String(form.get("groupId"))}`)
+  return { ok: memberId ? "Saved. Slack posts will tag you." : "Cleared. Slack posts will use your name." }
 }
 
 export async function sendTestPost(groupId: string): Promise<ActionState> {

@@ -77,6 +77,26 @@ test("winnerMessage escapes names so they can't ping the channel", () => {
   assert.match(msg.text, /\*&lt;!channel&gt;\* won \*R&amp;D &lt;team&gt;\*/);
 });
 
+test("winnerMessage tags people who saved a Slack member ID", () => {
+  const msg = winnerMessage({
+    appName: "OnlySteps",
+    groupName: "Office",
+    weekStart: "2026-10-05",
+    rows: [
+      { user_id: "a", display_name: "Amy", total_steps: 900, rank: 1, slack_user_id: "U0123ABCD" },
+      { user_id: "b", display_name: "Bo", total_steps: 800, rank: 2, slack_user_id: null },
+      { user_id: "c", display_name: "Cy", total_steps: 700, rank: 3, slack_user_id: "!channel" },
+    ],
+  });
+  assert.match(msg.text, /\*<@U0123ABCD>\* won \*Office\*/);
+  const podium = JSON.stringify(msg.blocks);
+  assert.ok(podium.includes("🥇 <@U0123ABCD> · 900"));
+  assert.ok(podium.includes("🥈 Bo · 800"));
+  // An ID that isn't a member ID is ignored, so it can't ping the channel.
+  assert.ok(podium.includes("🥉 Cy · 700"));
+  assert.ok(!podium.includes("!channel"));
+});
+
 test("winnerMessage keeps a huge tie under Slack's section limit", () => {
   const rows = Array.from({ length: 200 }, (_, i) => ({
     user_id: String(i),

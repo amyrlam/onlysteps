@@ -14,6 +14,15 @@ BUNDLE_ID_PREFIX = app.onlysteps
 // Your Apple developer team id (set it in Secrets.xcconfig).
 DEVELOPMENT_TEAM =
 
+// YES when DEVELOPMENT_TEAM is a paid Apple Developer team. NO builds for a
+// free Apple ID (Personal Team): it leaves out Sign in with Apple and invite
+// links that open the app, which free teams can't sign. Email sign-in and
+// Apple Health work either way.
+PAID_APPLE_TEAM = YES
+ENTITLEMENTS_FILE_YES = OnlySteps/Support/OnlySteps.entitlements
+ENTITLEMENTS_FILE_NO = OnlySteps/Support/OnlySteps.PersonalTeam.entitlements
+ENTITLEMENTS_FILE = $(ENTITLEMENTS_FILE_$(PAID_APPLE_TEAM))
+
 // Website that hosts invite links (https://<host>/join/<code>).
 WEB_HOST = onlysteps.app
 WEB_BASE_URL = https:/$()/$(WEB_HOST)

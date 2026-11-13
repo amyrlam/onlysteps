@@ -62,7 +62,7 @@ struct GroupsListView: View {
                         NavigationLink(value: group) {
                             OSCard {
                                 HStack(spacing: OSSpace._3) {
-                                    AvatarView(name: group.name)
+                                    AvatarView(name: group.name, imageURL: AppConfig.groupPictureURL(group.id))
                                     Text(group.name).font(.headline)
                                     Spacer()
                                     Image(systemName: "chevron.right")

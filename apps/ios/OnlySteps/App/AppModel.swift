@@ -24,6 +24,9 @@ final class AppModel {
     /// Set when an invite link is opened; the Groups screen consumes it.
     var pendingInviteCode: String?
 
+    /// The link in the sign-in email comes back to the app at this address.
+    static let authCallbackURL = URL(string: "onlysteps://auth-callback")!
+
     private var preparedUserID: UUID?
     private static let profileColumns = "id, display_name, avatar_url, time_zone"
 
@@ -67,6 +70,29 @@ final class AppModel {
         }
     }
 
+    /// Emails a sign-in link that opens the app (and a one-time code, if the
+    /// Supabase email template includes one). Returns false and sets
+    /// `signInError` if the email could not be sent.
+    func sendSignInCode(to email: String) async -> Bool {
+        signInError = nil
+        do {
+            try await supabase.auth.signInWithOTP(email: email, redirectTo: Self.authCallbackURL)
+            return true
+        } catch {
+            signInError = error.localizedDescription
+            return false
+        }
+    }
+
+    func signIn(email: String, code: String) async {
+        signInError = nil
+        do {
+            _ = try await supabase.auth.verifyOTP(email: email, token: code, type: .email)
+        } catch {
+            signInError = error.localizedDescription
+        }
+    }
+
     func signOut() async {
         do {
             try await supabase.auth.signOut()
@@ -76,6 +102,17 @@ final class AppModel {
     }
 
     func handle(url: URL) {
+        if url.scheme == Self.authCallbackURL.scheme, url.host() == Self.authCallbackURL.host() {
+            // The link in the sign-in email was tapped.
+            Task {
+                do {
+                    _ = try await supabase.auth.session(from: url)
+                } catch {
+                    signInError = error.localizedDescription
+                }
+            }
+            return
+        }
         guard let code = InviteLink.code(from: url) else { return }
         pendingInviteCode = code
         selectedTab = .groups

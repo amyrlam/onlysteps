@@ -2,15 +2,19 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { addDays, recentDays, weekStart } from "@onlysteps/functions/weekly"
+import { Avatar, AvatarFallback, AvatarImage } from "@onlysteps/ui/components/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@onlysteps/ui/components/card"
 import { Leaderboard } from "@onlysteps/ui/components/leaderboard"
 import { Tabs, TabsList, TabsTrigger } from "@onlysteps/ui/components/tabs"
+import { initials } from "@onlysteps/ui/lib/utils"
 import { SITE_URL } from "@/lib/brand"
+import { groupPictureUrl } from "@/lib/group-picture"
 import { getUser } from "@/lib/supabase/server"
 import { InviteLink } from "./invite-link"
 import { LogStepsForm } from "./log-steps-form"
 import { RemovedMembers } from "./removed-members"
 import { SlackSettingsForm } from "./slack-settings-form"
+import { SlackTagForm } from "./slack-tag-form"
 
 export const metadata: Metadata = { title: "Leaderboard" }
 
@@ -31,11 +35,12 @@ export default async function GroupPage({
   const showing = week === "last" ? addDays(thisWeek, -7) : thisWeek
   const logDays = recentDays(new Date(), group.time_zone, 7)
 
-  const [{ data: rows }, { data: me }, { data: slack }, { data: myDays }] = await Promise.all([
+  const [{ data: rows }, { data: me }, { data: slack }, { data: myDays }, { data: myProfile }] = await Promise.all([
     supabase.rpc("group_leaderboard", { gid: id, week: showing }),
     supabase.from("group_members").select("role").eq("group_id", id).eq("user_id", user!.id).single(),
     supabase.from("group_slack_settings").select("webhook_url, enabled, post_weekday, post_hour").eq("group_id", id).maybeSingle(),
     supabase.from("daily_steps").select("day, steps").eq("user_id", user!.id).in("day", logDays),
+    supabase.from("profiles").select("slack_user_id").eq("id", user!.id).maybeSingle(),
   ])
   const isOwner = me?.role === "owner"
   const { data: removed } = isOwner ? await supabase.rpc("group_removed_members", { gid: id }) : { data: null }
@@ -55,7 +60,13 @@ export default async function GroupPage({
         <Link href="/groups" className="text-muted-foreground text-sm hover:underline">
           ← Groups
         </Link>
-        <h1 className="text-3xl font-semibold">{group.name}</h1>
+        <div className="flex items-center gap-3">
+          <Avatar size="lg">
+            <AvatarImage src={groupPictureUrl(group.id)} alt="" />
+            <AvatarFallback>{initials(group.name)}</AvatarFallback>
+          </Avatar>
+          <h1 className="text-3xl font-semibold">{group.name}</h1>
+        </div>
         {requestCount > 0 ? (
           <a href="#removed" className="text-sm font-medium hover:underline">
             {requestCount === 1 ? "1 request to rejoin" : `${requestCount} requests to rejoin`} →
@@ -117,6 +128,19 @@ export default async function GroupPage({
           </CardContent>
         </Card>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Get tagged in Slack</CardTitle>
+          <CardDescription>
+            Results posted to Slack will @-mention you instead of printing your name. In Slack, open your profile,
+            choose ⋯, then Copy member ID.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SlackTagForm groupId={id} memberId={myProfile?.slack_user_id ?? null} />
+        </CardContent>
+      </Card>
 
       {isOwner ? (
         <Card>

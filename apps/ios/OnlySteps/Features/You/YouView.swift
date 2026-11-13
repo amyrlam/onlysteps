@@ -11,7 +11,7 @@ struct YouView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: OSSpace._4) {
                     HStack(spacing: OSSpace._3) {
-                        AvatarView(name: app.profile?.displayName ?? "", size: OSSpace._12)
+                        AvatarView(name: app.profile?.displayName ?? "", imageURL: app.profile?.avatarURL, size: OSSpace._12)
                         VStack(alignment: .leading) {
                             Text(app.profile?.displayName ?? " ").font(.title3.bold())
                             Text(app.profile?.timeZone ?? TimeZone.current.identifier)

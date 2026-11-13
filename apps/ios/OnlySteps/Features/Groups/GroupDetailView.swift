@@ -8,19 +8,51 @@ struct GroupDetailView: View {
 
     init(group: StepGroup) {
         self.group = group
-        _model = State(initialValue: LeaderboardModel(groupID: group.id))
+        _model = State(initialValue: LeaderboardModel(groupID: group.id, timeZone: group.timeZone))
     }
 
     private var inviteURL: URL { AppConfig.inviteURL(code: group.inviteCode) }
 
+    private var weekTitle: String {
+        switch model.weekOffset {
+        case 0: return "This week"
+        case -1: return "Last week"
+        default:
+            let calendar = StepCalendar(timeZone: model.timeZone).calendar
+            let start = model.weekStart
+            let end = calendar.date(byAdding: .day, value: 6, to: start) ?? start
+            var style = Date.FormatStyle().month(.abbreviated).day()
+            style.timeZone = model.timeZone
+            return "\(start.formatted(style)) – \(end.formatted(style))"
+        }
+    }
+
+    private func weekButton(_ label: String, systemImage: String, by change: Int) -> some View {
+        Button {
+            Task { await model.showWeek(offset: model.weekOffset + change) }
+        } label: {
+            Image(systemName: systemImage)
+                .font(.headline)
+                .frame(width: 44, height: 44)
+        }
+        .accessibilityLabel(label)
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: OSSpace._6) {
-                VStack(alignment: .leading, spacing: OSSpace._1) {
-                    Text("This week").font(.title2.bold())
-                    Text("Monday to Sunday · \(group.timeZone)")
-                        .font(.footnote)
-                        .foregroundStyle(OSColor.mutedForeground)
+                HStack(spacing: OSSpace._3) {
+                    AvatarView(name: group.name, imageURL: AppConfig.groupPictureURL(group.id), size: OSSpace._12)
+                    VStack(alignment: .leading, spacing: OSSpace._1) {
+                        Text(weekTitle).font(.title2.bold())
+                        Text("Monday to Sunday · \(group.timeZone)")
+                            .font(.footnote)
+                            .foregroundStyle(OSColor.mutedForeground)
+                    }
+                    Spacer(minLength: 0)
+                    weekButton("Earlier week", systemImage: "chevron.left", by: -1)
+                    weekButton("Later week", systemImage: "chevron.right", by: 1)
+                        .disabled(model.weekOffset == 0)
                 }
 
                 if let error = model.errorMessage {
@@ -93,7 +125,7 @@ private struct PodiumView: View {
     private func spot(_ entry: LeaderboardEntry, height: CGFloat) -> some View {
         let isMe = entry.userID == myID
         return VStack(spacing: OSSpace._2) {
-            AvatarView(name: entry.displayName, size: OSSpace._12, isHighlighted: isMe)
+            AvatarView(name: entry.displayName, imageURL: entry.avatarURL, size: OSSpace._12, isHighlighted: isMe)
             Text(isMe ? "You" : entry.displayName)
                 .font(.subheadline.weight(isMe ? .bold : .medium))
                 .lineLimit(1)
@@ -121,7 +153,7 @@ private struct LeaderboardRow: View {
                 .monospacedDigit()
                 .foregroundStyle(OSColor.mutedForeground)
                 .frame(minWidth: OSSpace._6)
-            AvatarView(name: entry.displayName, size: OSSpace._8)
+            AvatarView(name: entry.displayName, imageURL: entry.avatarURL, size: OSSpace._8)
             Text(isMe ? "\(entry.displayName) (you)" : entry.displayName)
                 .font(.body.weight(isMe ? .semibold : .regular))
                 .lineLimit(1)
