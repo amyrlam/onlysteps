@@ -7,8 +7,10 @@ struct SignInView: View {
     @State private var nonce: String?
     @State private var email = ""
     @State private var code = ""
-    /// The address a code was sent to; nil while asking for the email.
+    /// The address the sign-in email went to; nil while asking for the email.
     @State private var codeSentTo: String?
+    /// The email has a code only if the Supabase template includes one.
+    @State private var showsCodeField = false
     @State private var isWorking = false
     @FocusState private var focus: Field?
 
@@ -97,35 +99,53 @@ struct SignInView: View {
             .onSubmit(sendCode)
             .modifier(FieldChrome())
 
-        Button(isWorking ? "Sending…" : "Email me a sign-in code", action: sendCode)
+        Button(isWorking ? "Sending…" : "Email me a sign-in link", action: sendCode)
             .buttonStyle(AppConfig.appleSignInEnabled ? .osSecondary : .osPrimary)
             .disabled(isWorking || !trimmedEmail.contains("@"))
     }
 
     @ViewBuilder
     private func codeEntry(sentTo: String) -> some View {
-        Text("Enter the code we emailed to \(sentTo).")
-            .font(.subheadline)
-            .foregroundStyle(OSColor.mutedForeground)
-            .multilineTextAlignment(.center)
+        VStack(spacing: OSSpace._2) {
+            Image(systemName: "envelope.badge")
+                .font(.title)
+                .foregroundStyle(OSColor.primary)
+            Text("Check your email")
+                .font(.headline)
+            Text("We sent a sign-in link to \(sentTo). Open it on this iPhone to finish signing in.")
+                .font(.subheadline)
+                .foregroundStyle(OSColor.mutedForeground)
+                .multilineTextAlignment(.center)
+        }
 
-        TextField("Code", text: $code)
-            .keyboardType(.numberPad)
-            .textContentType(.oneTimeCode)
-            .font(.title3.monospacedDigit())
-            .multilineTextAlignment(.center)
-            .focused($focus, equals: .code)
-            .modifier(FieldChrome())
+        if showsCodeField {
+            TextField("Code", text: $code)
+                .keyboardType(.numberPad)
+                .textContentType(.oneTimeCode)
+                .font(.title3.monospacedDigit())
+                .multilineTextAlignment(.center)
+                .focused($focus, equals: .code)
+                .modifier(FieldChrome())
 
-        Button(isWorking ? "Signing in…" : "Sign in", action: verifyCode)
-            .buttonStyle(.osPrimary)
-            .disabled(isWorking || trimmedCode.count < 6)
+            Button(isWorking ? "Signing in…" : "Sign in", action: verifyCode)
+                .buttonStyle(.osPrimary)
+                .disabled(isWorking || trimmedCode.count < 6)
+        }
 
-        Button("Use a different email") {
-            codeSentTo = nil
-            code = ""
-            app.signInError = nil
-            focus = .email
+        HStack(spacing: OSSpace._4) {
+            Button("Use a different email") {
+                codeSentTo = nil
+                code = ""
+                showsCodeField = false
+                app.signInError = nil
+                focus = .email
+            }
+            if !showsCodeField {
+                Button("Enter a code instead") {
+                    showsCodeField = true
+                    focus = .code
+                }
+            }
         }
         .font(.footnote)
         .foregroundStyle(OSColor.mutedForeground)
@@ -138,7 +158,7 @@ struct SignInView: View {
         Task {
             if await app.sendSignInCode(to: address) {
                 codeSentTo = address
-                focus = .code
+                focus = nil
             }
             isWorking = false
         }

@@ -70,8 +70,9 @@ final class AppModel {
         }
     }
 
-    /// Emails a one-time sign-in code. Returns false and sets `signInError`
-    /// if the email could not be sent.
+    /// Emails a sign-in link that opens the app (and a one-time code, if the
+    /// Supabase email template includes one). Returns false and sets
+    /// `signInError` if the email could not be sent.
     func sendSignInCode(to email: String) async -> Bool {
         signInError = nil
         do {
@@ -102,7 +103,7 @@ final class AppModel {
 
     func handle(url: URL) {
         if url.scheme == Self.authCallbackURL.scheme, url.host() == Self.authCallbackURL.host() {
-            // Tapping the link in the sign-in email, instead of typing the code.
+            // The link in the sign-in email was tapped.
             Task {
                 do {
                     _ = try await supabase.auth.session(from: url)
