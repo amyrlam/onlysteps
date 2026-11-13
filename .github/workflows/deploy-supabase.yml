@@ -42,10 +42,13 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
         with:
           persist-credentials: false
+      # Pinned to CLI v2. In v3, `db push` targets a local database unless
+      # given --remote, and --project-ref became --remote, so the steps below
+      # need rewriting before this can move up.
       - uses: supabase/setup-cli@v1
         if: steps.gate.outputs.enabled == 'true'
         with:
-          version: latest
+          version: 2.121.0
       - name: Link project
         if: steps.gate.outputs.enabled == 'true'
         run: supabase link --project-ref "$PROJECT_ID"
